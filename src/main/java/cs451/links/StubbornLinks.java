@@ -13,13 +13,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class StubbornLinks implements Links, Runnable{
     private FairLossLinks fairLossLink;
-    public int MAX_TIME = 1000;
     boolean flag = true;
     public LinkedBlockingQueue<Message> line;
     List hosts;
     private int processNum;
     public CopyOnWriteArrayList<ArrayList<Integer>> deliverNum;
-    float iii;
 
 
     public StubbornLinks(int port, List<Host> hosts, int messageNum) throws SocketException {
@@ -55,7 +53,7 @@ public class StubbornLinks implements Links, Runnable{
                 if(this.deliverNum.get(pack.id_from).get(pack.m) < this.processNum-1){
                     line.put(pack);
                 }
-                //else{
+                //else{ //debug
                 //    System.out.println("delete: "+pack.id_from+" "+pack.m);
                 //}
 

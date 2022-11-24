@@ -12,9 +12,9 @@ public class Message implements Serializable {
 
         this.m = m;
         this.id_to = id_to;
-        this.id_from = id_from; //-3: send out message
+        this.id_from = id_from;
         this.last_hop = last_hop; //last hop
-        this.is_delivered = is_delivered;
+        this.is_delivered = is_delivered; //true: this is m delivering ack; false: this is m receiving ack
 
     }
 

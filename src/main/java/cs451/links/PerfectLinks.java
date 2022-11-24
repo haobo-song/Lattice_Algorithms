@@ -45,7 +45,6 @@ public class PerfectLinks implements Links{
             } else {
                 //System.out.println("perfect receive message: " + receivedMessage.m +", "+receivedMessage.id_from+", "+receivedMessage.last_hop);
                 //System.out.println("perfect receive message: " + receivedMessage.m +", "+receivedMessage.id_from+", "+receivedMessage.id_to+", "+receivedMessage.last_hop);
-                //System.out.println("perfect receive message hash: " + receivedMessage.hashCode() );
                 delivered.add(receivedMessage);
                 return receivedMessage;
             }

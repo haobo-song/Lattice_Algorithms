@@ -34,13 +34,11 @@ public class FifoBroadcast implements Broadcast, Runnable{
         this.messageNum = messageNum;
         this.broadPosition = 1; //next broad message id
         this.broadQueueSize = 0;
-        //this.broadQueue = new Message[messageNum+1];
         urb = new UniformReliableBroadcast(myHost, hosts, messageNum);
         threadUrb = new Thread(this.urb);
         threadUrb.start();
         pending = new boolean[processNum+1][messageNum+1];
         deliverPosition = new int[processNum+1];
-        //iii = 0;
         flag = true;
         //System.out.println("open ready");
     }
@@ -48,7 +46,6 @@ public class FifoBroadcast implements Broadcast, Runnable{
     @Override
     public void broadcast(Message message) throws IOException {
         //implement rolling window
-        //broadQueue[message.m] = message;
         broadQueueSize = message.m; //message from main, ready to broadcast
 
     }
@@ -99,7 +96,6 @@ public class FifoBroadcast implements Broadcast, Runnable{
                     try {
                         //System.out.println("fifo broad: " + i+" "+deliverPosition[myHost.getId()]);
                         Message message = new Message(i, -1, myHost.getId(), myHost.getId(), false);
-                        //this.urb.line.put(broadQueue[i]);
                         this.urb.line.put(message);
                         broadPosition++;
                         String log = 'b' + " " + message.m + "\n";
@@ -107,12 +103,7 @@ public class FifoBroadcast implements Broadcast, Runnable{
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    //String log = 'b' + " " + message.m + "\n";
-                    //logger.log(log);
                 }
-            }
-            if(broadPosition == messageNum){
-
             }
             //deliver
             Message receivedMessage = null;

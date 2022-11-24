@@ -11,11 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class UniformReliableBroadcast implements Broadcast, Runnable {
 
     private BestEffortBroadcast beb;
-    //private boolean pending[][];
-    //private boolean delivered[][];
-    //private int messageNum;
     private int processNum;
-    private int messageNum;
     private int ackNum[][];
     private boolean ack[][][];
     private boolean isDelivered[][][];
@@ -30,9 +26,6 @@ public class UniformReliableBroadcast implements Broadcast, Runnable {
         this.hosts = hosts;
         this.beb = new BestEffortBroadcast(myHost, hosts, messageNum);
         this.processNum = hosts.size();
-        this.messageNum = messageNum;
-        //this.messageNum = messageNum;
-        //delivered = new boolean[processNum+1][messageNum+1];
         ack = new boolean[processNum+1][messageNum+1][processNum+1];
         isDelivered = new boolean[processNum+1][messageNum+1][processNum+1];
         ackNum= new int[processNum+1][messageNum+1];
@@ -51,27 +44,25 @@ public class UniformReliableBroadcast implements Broadcast, Runnable {
         Message message = beb.deliver();
         if (message != null){
             //System.out.println("urb receive message: " + message.m +", "+message.id_from+", "+message.id_to+", "+message.last_hop);
-            if(message.id_from == 3){
-                //System.out.println("urb receive message: " + message.m+" "+this.beb.link.stubbornLink.ackNum.get(message.id_from).get(message.m));
-                //System.out.println("urb ack message: " + message.m +", "+message.last_hop+", ");
-                //System.out.println("urb ack num:" + this.beb.link.stubbornLink.ackNum.get(message.id_from).get(message.m));
-            }
+            // receive ack from p
             if(!ack[message.id_from][message.m][message.last_hop]){
                 ack[message.id_from][message.m][message.last_hop] = true;
                 ackNum[message.id_from][message.m] ++;
                 //System.out.println("urb receive message: " + message.id_from+" "+this.beb.link.stubbornLink.ackNum.get(message.id_from).get(message.m));
             }
-            if(!reply[message.id_from][message.m] && message.id_from != myHost.getId()){ //origin message not broadcast ack yet
+            //origin message not broadcast ack yet
+            if(!reply[message.id_from][message.m] && message.id_from != myHost.getId()){
                 this.line.put(message);
                 reply[message.id_from][message.m] = true;
                 //System.out.println("urb ack message: " + message.id_from +", " +message.m);
             }
-            // when pi already deliver m
+            // when pi already deliver m, this is a deliver ack
             if(message.is_delivered && !isDelivered[message.id_from][message.m][message.last_hop]){
                 isDelivered[message.id_from][message.m][message.last_hop] = true;
                 this.beb.link.stubbornLink.deliverNum.get(message.id_from).set(message.m, this.beb.link.stubbornLink.deliverNum.get(message.id_from).get(message.m)+1);
                 //System.out.println("urb receive message: " + message.id_from+" "+message.m+" "+message.last_hop+" "+this.beb.link.stubbornLink.deliverNum.get(message.id_from).get(message.m));
             }
+            //check if this message can deliver
             if(!isDelivered[message.id_from][message.m][myHost.getId()] && ackNum[message.id_from][message.m]+1 > processNum/2){//I won't receive ack from myself
 
                 isDelivered[message.id_from][message.m][myHost.getId()] = true;
