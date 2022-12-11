@@ -43,7 +43,6 @@ public class LatticeBroadcast implements Broadcast, Runnable{
         ackNum= new int[messageNum+1];
         nackNum= new int[messageNum+1];
         proposeValue = new int[messageNum+1][];
-        //acceptValue = new HashSet<Integer>();
         isDelivered = new boolean[processNum+1];
         flag = true;
         this.broadflag = true;
@@ -64,35 +63,34 @@ public class LatticeBroadcast implements Broadcast, Runnable{
     @Override
     public Message deliver() throws IOException {
         Message message = beb.deliver();
-        if (message != null){
+        if (message != null) {
             //System.out.println("urb receive message: " + message.m +", "+message.id_from+", "+message.id_to+", "+message.last_hop);
             // receive ack from p
-            if(message.is_ack && !ack[message.id_from][message.no] && (!isDelivered[message.no])){
+            if (message.is_ack && !ack[message.id_from][message.no] && (!isDelivered[message.no])) {
                 ack[message.id_from][message.no] = true;
-                if(message.m.length != 0){//this is a nack not ack, need to combine value
-                    nackNum[message.no] ++;
+                if (message.m.length != 0) {//this is a nack not ack, need to combine value
+                    nackNum[message.no]++;
                     Set<Integer> set = new HashSet<Integer>();
                     set.addAll(Arrays.stream(message.m).boxed().collect(Collectors.toList()));
                     set.addAll(Arrays.stream(proposeValue[message.no]).boxed().collect(Collectors.toList()));
                     proposeValue[message.no] = Arrays.stream(set.toArray(new Integer[0])).mapToInt(Integer::intValue).toArray();
 
-                }
-                else {
-                    ackNum[message.no] ++;
+                } else {
+                    ackNum[message.no]++;
                 }
                 //System.out.println("urb receive message: " + message.id_from+" "+this.beb.link.stubbornLink.ackNum.get(message.id_from).get(message.m));
             }
-            if(!message.is_ack){// origin message
+            if (!message.is_ack) {// origin message
                 int crr_size = acceptValue[message.no].size();
                 acceptValue[message.no].addAll(Arrays.stream(message.m).boxed().collect(Collectors.toList()));
-                if(acceptValue[message.no].size() == crr_size){ //send ack
+                if (acceptValue[message.no].size() == crr_size) { //send ack
                     Message tmp_m = new Message(message.no, new int[0], message.id_from, myHost.getId(), true);
                     beb.broadcast(tmp_m);
                 }
-                else{ //send nack
+                else { //send nack
                     int[] tmp = new int[acceptValue[message.no].size()];
                     int tmp_i = 0;
-                    for(Integer tmp_v : acceptValue[message.no]){
+                    for (Integer tmp_v : acceptValue[message.no]) {
                         tmp[tmp_i] = tmp_v;
                         tmp_i++;
                     }
@@ -100,21 +98,14 @@ public class LatticeBroadcast implements Broadcast, Runnable{
                     beb.broadcast(tmp_m);
                 }
 
-                }
-
             }
-            // when pi already deliver m, this is a deliver ack
-            //if(message.is_delivered && !isDelivered[message.id_from][message.m][message.last_hop]){
-            //    isDelivered[message.id_from][message.m][message.last_hop] = true;
-            //    this.beb.link.stubbornLink.deliverNum.get(message.id_from).set(message.m, this.beb.link.stubbornLink.deliverNum.get(message.id_from).get(message.m)+1);
-            //System.out.println("urb receive message: " + message.id_from+" "+message.m+" "+message.last_hop+" "+this.beb.link.stubbornLink.deliverNum.get(message.id_from).get(message.m));
-            //}
             //check if this message can deliver
-            if((!isDelivered[message.no]) &&( ackNum[message.no] >= processNum/2+1)){//decide
+            if ((!isDelivered[message.no]) && (ackNum[message.no] >= processNum / 2 + 1)) {//decide
                 isDelivered[message.no] = true;
                 Message tmp_m = new Message(message.no, proposeValue[message.no], message.id_from, myHost.getId(), false);
                 return tmp_m;
             }
+        }
         return null;
     }
 
@@ -128,7 +119,7 @@ public class LatticeBroadcast implements Broadcast, Runnable{
         System.out.println("fifo run "+flag);
         while (flag){
             //broadcast first
-            if((ackNum[currPosition]+nackNum[currPosition] >= processNum/2+1) && (nackNum[currPosition]>0 )){
+            if((currPosition<= messageNum)&&(ackNum[currPosition]+nackNum[currPosition] >= processNum/2+1) && (nackNum[currPosition]>0 )){
                 broadflag = true;
                 currPosition++;
             }
