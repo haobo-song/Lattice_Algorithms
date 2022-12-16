@@ -25,7 +25,7 @@ public class BestEffortBroadcast implements Broadcast{
         if (message.id_to == -1){//broadcast
             for (int i = 0; i < hosts.size(); i++) {
                 if (hosts.get(i).getId() != this.myHost.getId()) {
-                    Message tmp_m = new Message(message.no, message.m, hosts.get(i).getId(), message.id_from, message.is_ack);
+                    Message tmp_m = new Message(message.no, message.proposal_num, message.m, hosts.get(i).getId(), message.id_from, message.is_ack);
                     link.send(tmp_m);
                 }
             }

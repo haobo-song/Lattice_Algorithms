@@ -82,18 +82,22 @@ public class Main {
             threadlatticeBroadcast.start();
             System.out.println("Broadcasting and delivering messages...\n");
 
+            Scanner reader_line = new Scanner(configFile);
+            reader_line.nextLine();
             for (Integer j = 1; j <= messageNumber; j++){
-                String m = reader.nextLine();
+                String m = reader_line.nextLine();
                 String[] words = m.split("\\s+");
                 int[] proposal = new int[words.length];
                 for (int i = 0; i < words.length; i++) {
                     proposal[i] = Integer.parseInt(words[i]);
                 }
-                Message message = new Message(j, proposal, -1, host.getId(), false);
+                Message message = new Message(j, 0, proposal, -1, host.getId(), false);
+
                 //perfectLink.send(m, perfectLink.getIpFromHosts(parser.hosts(), destinationProcess), perfectLink.getPortFromHosts(parser.hosts(), destinationProcess));
-                while(latticeBroadcast.currPosition< j | latticeBroadcast.broadflag==false){
+                while(latticeBroadcast.proposePosition < j | latticeBroadcast.broadflag==false){
                     Thread.sleep(5);
                 }
+                System.out.println("read: [" +m+"] "+latticeBroadcast.proposePosition);
                 latticeBroadcast.broadcast(message);
             }
 

@@ -14,6 +14,7 @@ public class PerfectLinks implements Links{
     public StubbornLinks stubbornLink;
     Thread threadStubborn;
     Set delivered;
+    //List delivered;
     List hosts;
 
 
@@ -21,7 +22,7 @@ public class PerfectLinks implements Links{
         this.stubbornLink = new StubbornLinks(port, hosts, messageNum);
         threadStubborn = new Thread(this.stubbornLink);
         threadStubborn.start();
-        this.delivered = new HashSet<Message>();
+        this.delivered = new HashSet<String>();
         this.hosts = hosts;
     }
 
@@ -40,12 +41,12 @@ public class PerfectLinks implements Links{
     public Message deliver() {
         Message receivedMessage = stubbornLink.deliver();
         if (receivedMessage != null){
-            if (delivered.contains(receivedMessage)) {
+            if (delivered.contains(receivedMessage.hashCode())) {
                 return null;
             } else {
                 //System.out.println("perfect receive message: " + receivedMessage.m +", "+receivedMessage.id_from+", "+receivedMessage.last_hop);
-                //System.out.println("perfect receive message: " + receivedMessage.m +", "+receivedMessage.id_from+", "+receivedMessage.id_to+", "+receivedMessage.last_hop);
-                delivered.add(receivedMessage);
+                //System.out.println("perfect receive message: " + Arrays.toString(receivedMessage.m) +", "+receivedMessage.no+", "+receivedMessage.id_from+", "+receivedMessage.is_ack+" "+receivedMessage.hashCode());
+                delivered.add(receivedMessage.hashCode());
                 return receivedMessage;
             }
         }

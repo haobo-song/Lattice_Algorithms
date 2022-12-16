@@ -50,9 +50,9 @@ public class StubbornLinks implements Links, Runnable{
                 Message pack = this.line.take();
                 send(pack);
                 //System.out.println("stubborn: "+pack.id_from+" "+pack.m);
-                if(this.deliverNum.get(pack.id_from).get(pack.m) < this.processNum-1){
-                    line.put(pack);
-                }
+                //if(this.deliverNum.get(pack.id_from).get(pack.m) < this.processNum-1){
+                line.put(pack);
+
                 //else{ //debug
                 //    System.out.println("delete: "+pack.id_from+" "+pack.m);
                 //}
